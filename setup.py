@@ -18,6 +18,10 @@ ext_modules = [
         ["src/main.cpp"],
         # Example: passing in the version to the compiled code
         define_macros = [('VERSION_INFO', __version__)],
+        extra_compile_args = ["-fopenmp"],
+        extra_link_args = ["-fopenmp"],
+        cxx_std = 11,
+        language = 'c++',
         ),
 ]
 

@@ -1,22 +1,40 @@
 #include <pybind11/pybind11.h>
 #include <cstdio>
-#include <omp.h>
+#include <thread>
+#include <mutex>
 #include <iostream>
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-int add(int i, int j) {
-    #ifdef _OPENMP
-        std::cout << "parallel begin:\n";
-        #pragma omp parallel
-        {
-            std::cout << omp_get_thread_num();
-        }
-        std::cout << "\n parallel end.\n";
-    #endif
 
-    
+using namespace std;
+
+int g_num = 0;
+std::mutex g_mutex;
+
+void thread1()
+{
+    g_mutex.lock();
+    g_num = 50;
+    for (int i = 0; i < 10; ++i)
+	cout << "thread1:" << g_num << endl;
+    g_mutex.unlock();
+}
+
+void thread2()
+{
+    lock_guard<mutex> lg(g_mutex);   //用这种方式更安全
+    g_num = 100;
+    for (int j = 0; j < 10; ++j)
+	cout << "thread2:" << g_num << endl;
+}
+
+int add(int i, int j) {
+    thread t1(thread1);
+    thread t2(thread2);
+    t1.join();
+    t2.join();
 
     return i + j;
 }
